@@ -43,13 +43,4 @@ const server = app.listen(PORT, () => {
   console.log(`Search endpoint: http://localhost:${PORT}/search/dishes?name=biryani&minPrice=150&maxPrice=300`);
 });
 
-// Handle graceful shutdown
-process.on('SIGINT', () => {
-  console.log('\n🛑 Shutting down server...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
-});
-
 module.exports = app;

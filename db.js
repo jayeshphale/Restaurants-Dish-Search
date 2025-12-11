@@ -9,9 +9,7 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'restaurant_db',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelayMs: 0
+  queueLimit: 0
 });
 
 module.exports = pool;

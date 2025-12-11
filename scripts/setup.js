@@ -1,4 +1,4 @@
-const { setupDatabase } = require('./dbSetup');
+const { setupDatabase } = require('../dbSetup');
 
 setupDatabase()
   .then(() => {
