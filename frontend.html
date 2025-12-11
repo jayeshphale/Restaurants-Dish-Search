@@ -411,6 +411,8 @@
                     maxPrice: maxPrice
                 });
 
+                console.log(`Fetching: ${API_URL}/search/dishes?${queryParams}`);
+                
                 const response = await fetch(`${API_URL}/search/dishes?${queryParams}`, {
                     method: 'GET',
                     headers: {
@@ -418,15 +420,29 @@
                     }
                 });
 
+                console.log('Response status:', response.status);
+                
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to search dishes');
+                    throw new Error(errorData.error || `HTTP ${response.status}: Failed to search dishes`);
                 }
 
                 const results = await response.json();
+                console.log('API Response:', results);
+                
+                // Handle if response is wrapped in a data property
+                if (results.data && Array.isArray(results.data)) {
+                    results = results.data;
+                } else if (!Array.isArray(results)) {
+                    // If it's not an array, wrap it or show error
+                    console.error('Unexpected API response format:', results);
+                    throw new Error('Unexpected response format from API');
+                }
+                
                 displayResults(results, name, minPrice, maxPrice);
 
             } catch (err) {
+                console.error('Search error:', err);
                 showError(err.message || 'Network error. Make sure backend server is running on http://localhost:3000');
             } finally {
                 loading.classList.remove('show');
@@ -435,7 +451,9 @@
         }
 
         function displayResults(results, name, minPrice, maxPrice) {
-            if (results.length === 0) {
+            console.log('Displaying results:', results);
+            
+            if (!results || results.length === 0) {
                 noResults.textContent = `No dishes found matching "${name}" in the price range ₹${minPrice} - ₹${maxPrice}`;
                 noResults.innerHTML += '<p style="margin-top: 10px; font-size: 0.95rem; opacity: 0.8;">Try adjusting your search criteria</p>';
                 noResults.classList.add('show');
@@ -445,29 +463,34 @@
             resultCount.textContent = `Found ${results.length} Result${results.length !== 1 ? 's' : ''}`;
             resultsHeader.classList.add('show');
 
-            results.forEach(result => {
-                const card = document.createElement('div');
-                card.className = 'result-card';
-                card.innerHTML = `
-                    <div class="result-header">
-                        <div>
-                            <div class="restaurant-name">${result.restaurant_name}</div>
-                            <div class="restaurant-city">${result.city}</div>
+            if (Array.isArray(results)) {
+                results.forEach(result => {
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.innerHTML = `
+                        <div class="result-header">
+                            <div>
+                                <div class="restaurant-name">${result.restaurant_name || 'Unknown Restaurant'}</div>
+                                <div class="restaurant-city">${result.city || 'Unknown City'}</div>
+                            </div>
+                            <div class="popularity-badge">
+                                ⭐ ${(result.order_count || 0).toLocaleString()} orders
+                            </div>
                         </div>
-                        <div class="popularity-badge">
-                            ⭐ ${result.order_count.toLocaleString()} orders
+                        <div class="result-body">
+                            <div class="dish-name">${result.dish_name || 'Unknown Dish'}</div>
+                            <div class="dish-info">
+                                <div class="price">₹${result.price || 0}</div>
+                                <div class="order-count">Popular</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="result-body">
-                        <div class="dish-name">${result.dish_name}</div>
-                        <div class="dish-info">
-                            <div class="price">₹${result.price}</div>
-                            <div class="order-count">Popular</div>
-                        </div>
-                    </div>
-                `;
-                resultsGrid.appendChild(card);
-            });
+                    `;
+                    resultsGrid.appendChild(card);
+                });
+            } else {
+                console.error('Results is not an array:', results);
+                showError('Received invalid data format from server');
+            }
         }
 
         function showError(message) {
