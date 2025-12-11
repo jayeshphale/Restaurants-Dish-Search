@@ -1,144 +1,330 @@
 # Restaurant Dish Search - Full Stack Application
 
-A complete full-stack application for searching restaurants by dish name with price filtering. Features a modern web frontend and robust Node.js + Express + MySQL backend.
+A production-ready Node.js + Express + MySQL backend service with a beautiful responsive HTML frontend for searching restaurants by dish name with price filtering.
 
-## 🎯 Features
+## 📋 Table of Contents
 
-**Backend API:**
-- 🔍 Search restaurants by dish name (case-insensitive, partial matching)
-- 💰 Filter results by price range (minPrice and maxPrice)
-- ⭐ Returns top 10 restaurants sorted by popularity
-- 📊 Includes order counts, dish prices, and restaurant details
-- 🗄️ MySQL database with proper schema and relationships
-- 🌱 Seed data included (8 restaurants, 28 dishes)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Backend API](#backend-api)
+- [Database Schema](#database-schema)
+- [Installation & Setup](#installation--setup)
+- [Running the Application](#running-the-application)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Troubleshooting](#troubleshooting)
 
-**Frontend Web UI:**
-- 🎨 Beautiful, modern gradient design
-- 📱 Fully responsive (mobile, tablet, desktop)
-- ⚡ Real-time search with loading states
-- 🎯 Instant feedback and error handling
-- 🌐 CORS-enabled for seamless API communication
+## ✨ Features
+
+### Backend
+- 🔍 RESTful API for searching restaurants by dish name
+- 💰 Price range filtering (minPrice and maxPrice)
+- ⭐ Results sorted by popularity (order count)
+- 🗄️ MySQL database with optimized queries
+- 🔐 SQL injection prevention using parameterized queries
+- 🔌 Connection pooling (10 concurrent connections)
+- ✅ Input validation and error handling
+- 🌐 CORS support for frontend communication
+- 📊 Database-level aggregation for efficient popularity ranking
+
+### Frontend
+- 🎨 Beautiful gradient UI design
+- 📱 Fully responsive layout (desktop, tablet, mobile)
+- ⚡ Real-time search with validation
+- 🔄 Loading states and error handling
+- 🎯 No external dependencies (pure HTML/CSS/JavaScript)
+- ⚙️ Proper API integration
 
 ## 🛠️ Technology Stack
 
 **Backend:**
-- Node.js v14+
-- Express.js 4.18.2
-- MySQL 5.7+
-- mysql2/promise 3.6.5
-- cors 2.8.5
-- dotenv 16.3.1
+- Node.js v14+ (JavaScript runtime)
+- Express.js 4.18.2 (Web framework)
+- MySQL 5.7+ (Database)
+- mysql2/promise 3.6.5 (Async MySQL driver)
+- cors 2.8.5 (Cross-origin requests)
+- dotenv 16.3.1 (Environment variables)
+- nodemon 3.0.2 (Development tool)
 
 **Frontend:**
-- HTML5 + CSS3 + Vanilla JavaScript
-- No dependencies needed!
-- Responsive Grid Layout
-- Fetch API for backend communication
+- HTML5 (Semantic markup)
+- CSS3 (Responsive design with Grid and Flexbox)
+- Vanilla JavaScript (No dependencies)
+- Fetch API (HTTP communication)
 
-## 📋 Prerequisites
+## 🚀 Quick Start
 
-- Node.js (v14 or higher)
-- MySQL Server (v5.7 or higher)
+### Prerequisites
+- Node.js v14 or higher
+- MySQL Server v5.7 or higher
 - npm or yarn
-- Web browser (Chrome, Firefox, Safari, Edge)
+
+### 1. Install Backend Dependencies
+```bash
+cd "c:\Users\Jayesh Phale\Downloads\Restaurants Dish Search"
+npm install
+```
+
+### 2. Setup Database
+```bash
+# Create database and tables
+node setup-db.js
+
+# Seed with sample data
+npm run seed
+```
+
+### 3. Start Backend Server
+```bash
+npm start
+```
+Expected output: `🚀 Restaurant Dish Search API running on http://localhost:3000`
+
+### 4. Start Frontend Server (Optional)
+```bash
+node frontend-server.js
+```
+Expected output: `🌐 Frontend available at http://localhost:8080`
+
+### 5. Access the Application
+- **Frontend UI**: http://localhost:8080
+- **Or open directly**: `frontend.html` in your browser
+- **API Health Check**: http://localhost:3000/health
+- **Test Search**: http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300
 
 ## 📁 Project Structure
 
 ```
 Restaurants Dish Search/
-├── Backend Files
-│   ├── server.js           # Main Express server (Port 3000)
-│   ├── db.js              # Database connection pool
-│   ├── dbSetup.js         # Database initialization
-│   ├── routes/
-│   │   └── search.js      # Search API endpoint
+├── Backend Core
+│   ├── server.js              # Express application setup
+│   ├── db.js                  # MySQL connection pool
+│   ├── dbSetup.js             # Database schema initialization
+│   ├── package.json           # Dependencies configuration
+│   └── .env                   # Environment variables
+│
+├── Routes & Logic
+│   └── routes/
+│       └── search.js          # Search API endpoint
+│
+├── Database
 │   ├── scripts/
-│   │   ├── setup.js       # Database setup script
-│   │   └── seed.js        # Seed data script
-│   ├── package.json       # Backend dependencies
-│   └── .env               # Environment variables
+│   │   ├── setup.js           # Database setup entry point
+│   │   └── seed.js            # Sample data seeding
+│   └── setup-db.js            # Standalone database setup
 │
-├── Frontend Files
-│   ├── frontend.html      # Main UI (all-in-one HTML file)
-│   ├── frontend-server.js # Simple HTTP server (Port 8080)
-│   └── frontend/          # React project (optional)
+├── Frontend
+│   ├── frontend.html          # All-in-one HTML UI
+│   └── frontend-server.js     # HTTP server for frontend
 │
-└── Documentation
-    ├── README.md          # This file
-    ├── FULLSTACK_SETUP.md # Complete setup guide
-    ├── API_DOCS.md        # API documentation
-    └── [other docs]
+└── README.md                  # This file
 ```
 
-## 🚀 Quick Start (All-in-One)
+## 🔌 Backend API
 
-### Step 1: Install Backend Dependencies
+### Endpoints
 
-```bash
-npm install
+#### 1. Search Dishes
+Search for restaurants serving a specific dish within a price range.
+
+**Request:**
+```
+GET /search/dishes?name=<dishName>&minPrice=<minPrice>&maxPrice=<maxPrice>
 ```
 
-### Step 2: Setup Database
+**Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| name | string | ✅ | Dish name to search (supports partial matching) |
+| minPrice | number | ✅ | Minimum price in ₹ (non-negative) |
+| maxPrice | number | ✅ | Maximum price in ₹ (non-negative, >= minPrice) |
 
-```bash
-node setup-db.js
-npm run seed
+**Example Request:**
+```
+http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300
 ```
 
-### Step 3: Start Backend Server
-
-```bash
-# Terminal 1
-npm start
+**Success Response (200 OK):**
+```json
+{
+  "restaurants": [
+    {
+      "restaurantId": 1,
+      "restaurantName": "Hyderabadi Spice House",
+      "city": "Hyderabad",
+      "dishName": "Chicken Biryani",
+      "dishPrice": 220,
+      "orderCount": 96
+    },
+    {
+      "restaurantId": 4,
+      "restaurantName": "Kolkata Biryani Palace",
+      "city": "Kolkata",
+      "dishName": "Chicken Biryani",
+      "dishPrice": 195,
+      "orderCount": 89
+    }
+  ]
+}
 ```
 
-Expected output:
-```
-🚀 Restaurant Dish Search API running on http://localhost:3000
-Health check: http://localhost:3000/health
-Search endpoint: http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300
-```
+**Error Responses:**
 
-### Step 4: Open Frontend in Browser
-
-**Option A: Open HTML file directly**
-```bash
-# Simply open frontend.html in your browser
-# File → Open File → frontend.html
+Missing required parameters (400 Bad Request):
+```json
+{
+  "error": "Dish name (name) is required"
+}
 ```
 
-**Option B: Use Frontend Server (Terminal 2)**
-```bash
-node frontend-server.js
-# Then open http://localhost:8080
+Invalid price range (400 Bad Request):
+```json
+{
+  "error": "minPrice must be less than or equal to maxPrice"
+}
 ```
 
-That's it! The frontend will communicate with the backend on port 3000.
+Server error (500 Internal Server Error):
+```json
+{
+  "error": "Internal server error",
+  "message": "Connection error details..."
+}
+```
 
-## 📖 Installation & Setup (Detailed)
+#### 2. Health Check
+Check if the API is running.
 
-### 1. Clone or Download Project
+**Request:**
+```
+GET /health
+```
 
+**Response (200 OK):**
+```json
+{
+  "status": "OK",
+  "message": "Restaurant Dish Search API is running"
+}
+```
+
+### Query Logic
+
+The search endpoint uses an optimized SQL query with JOINs, aggregation, and filtering:
+
+```sql
+SELECT 
+  r.id as restaurantId,
+  r.name as restaurantName,
+  r.city,
+  m.name as dishName,
+  m.price as dishPrice,
+  SUM(o.order_count) as orderCount
+FROM restaurants r
+INNER JOIN menu_items m ON r.id = m.restaurant_id
+INNER JOIN orders o ON m.id = o.menu_item_id
+WHERE LOWER(m.name) LIKE LOWER(?)
+  AND m.price >= ?
+  AND m.price <= ?
+GROUP BY r.id, m.id
+ORDER BY orderCount DESC
+LIMIT 10
+```
+
+**Query Optimization:**
+- **INNER JOINs**: Efficient data retrieval across three tables
+- **GROUP BY**: Aggregates multiple orders per dish
+- **SUM()**: Calculates total order count per restaurant-dish combination
+- **LOWER()**: Case-insensitive matching
+- **LIKE operator**: Partial text matching
+- **WHERE**: Filters by price range before sorting
+- **ORDER BY DESC**: Sorts by popularity
+- **LIMIT 10**: Returns top 10 results
+
+## 📊 Database Schema
+
+### Tables
+
+#### restaurants
+Stores restaurant information.
+
+```sql
+CREATE TABLE restaurants (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  city VARCHAR(50) NOT NULL
+);
+```
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INT | PRIMARY KEY, AUTO_INCREMENT |
+| name | VARCHAR(100) | NOT NULL, UNIQUE |
+| city | VARCHAR(50) | NOT NULL |
+
+#### menu_items
+Stores dishes offered by each restaurant.
+
+```sql
+CREATE TABLE menu_items (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  restaurant_id INT NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+);
+```
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INT | PRIMARY KEY, AUTO_INCREMENT |
+| restaurant_id | INT | FOREIGN KEY (restaurants.id), ON DELETE CASCADE |
+| name | VARCHAR(100) | NOT NULL |
+| price | DECIMAL(10,2) | NOT NULL |
+
+#### orders
+Stores order data (aggregated order counts per menu item).
+
+```sql
+CREATE TABLE orders (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  menu_item_id INT NOT NULL,
+  order_count INT NOT NULL DEFAULT 0,
+  FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE
+);
+```
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INT | PRIMARY KEY, AUTO_INCREMENT |
+| menu_item_id | INT | FOREIGN KEY (menu_items.id), ON DELETE CASCADE |
+| order_count | INT | NOT NULL, DEFAULT 0 |
+
+### Sample Data
+
+**8 Restaurants:** Hyderabadi Spice House, Mumbai Masala Kitchen, Delhi Delights, Kolkata Biryani Palace, Chennai Flavors, Bangalore Spice Corner, Lucknow Kebab House, Jaipur Royal Cuisine
+
+**28 Menu Items:** Various biryani types (Chicken, Vegetable, Mutton, Fish, Egg, Paneer, Prawn)
+- Price range: ₹140 - ₹295
+- Order counts: 38 - 96 (realistic popularity data)
+
+## 🔧 Installation & Setup
+
+### 1. Clone/Download Project
 ```bash
 cd "c:\Users\Jayesh Phale\Downloads\Restaurants Dish Search"
 ```
 
-### 2. Install Backend Dependencies
-
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-This installs:
-- express (web framework)
-- mysql2 (database driver)
-- cors (cross-origin requests)
-- dotenv (environment variables)
-- nodemon (development auto-reload)
+### 3. Configure Environment Variables
 
-### 3. Configure Database
-
-Create `.env` file (already included):
+Create `.env` file in root directory:
 ```env
 PORT=3000
 DB_HOST=localhost
@@ -151,162 +337,106 @@ DB_NAME=restaurant_db
 ### 4. Initialize Database
 
 ```bash
-# Create tables and database
+# Standalone setup (creates database and tables)
 node setup-db.js
+```
 
-# Seed with sample data (8 restaurants, 28 dishes)
+Output:
+```
+✓ Connected to MySQL server
+✓ Database 'restaurant_db' created/verified
+✓ restaurants table created
+✓ menu_items table created
+✓ orders table created
+✓ Database setup completed successfully!
+```
+
+### 5. Seed Sample Data
+```bash
 npm run seed
 ```
 
-### 5. Start Backend
+Output:
+```
+✓ Cleared existing data
+✓ Inserted 8 restaurants
+✓ Inserted 28 menu items
+✓ Inserted 28 orders
+✅ Database seeded successfully!
+```
 
+## 🚀 Running the Application
+
+### Development Mode
+
+**Terminal 1 - Backend:**
 ```bash
 npm start
 ```
 
-### 6. Access Frontend
-
-**Option A: Direct HTML (Easiest)**
-- Right-click `frontend.html` → Open with Browser
-- Or drag `frontend.html` into browser
-
-**Option B: Via Server**
+**Terminal 2 - Frontend (Optional):**
 ```bash
-# Terminal 2
 node frontend-server.js
-# Visit http://localhost:8080
 ```
 
-## 🌐 API Endpoints
+### Production Mode
 
-All endpoints on backend (default: http://localhost:3000)
-
-### Search Dishes
-```
-GET /search/dishes?name=biryani&minPrice=150&maxPrice=300
-
-Parameters (all required):
-  - name (string): Dish name to search
-  - minPrice (number): Minimum price in ₹
-  - maxPrice (number): Maximum price in ₹
-
-Response (JSON array of up to 10 results):
-[
-  {
-    "restaurant_id": 1,
-    "restaurant_name": "Hyderabadi Spice House",
-    "city": "Hyderabad",
-    "dish_name": "Chicken Biryani",
-    "price": 195,
-    "order_count": 85
-  },
-  ...
-]
-```
-
-### Health Check
-```
-GET /health
-
-Response:
-{
-  "status": "OK",
-  "message": "Restaurant Dish Search API is running"
-}
+```bash
+npm install --production
+npm start
 ```
 
 ## 🧪 Testing
 
-### Frontend Testing (Browser)
+### Browser Testing
+1. Open `frontend.html` or http://localhost:8080
+2. Search for "biryani" with price range ₹150-₹300
+3. Should display 10+ results sorted by popularity
 
-1. Search for "biryani" with prices 150-300
-2. Expected: 10+ results sorted by order count
-3. Try different searches: "chicken", "paneer", "mutton"
-
-### API Testing (Direct)
-
-```bash
-# Browser
-http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300
-
-# PowerShell
-Invoke-WebRequest -Uri "http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300" -UseBasicParsing | Select-Object -ExpandProperty Content
-
-# Node.js
-node test-api.js
-
-# Python
-python test-api.py
-```
-
-## 📊 Sample Data Included
-
-**Restaurants (8):**
-- Hyderabadi Spice House, Mumbai Masala Kitchen, Delhi Delights
-- Kolkata Biryani Palace, Chennai Flavors, Bangalore Spice Corner
-- Lucknow Kebab House, Jaipur Royal Cuisine
-
-**Dishes (28):**
-- Chicken, Vegetable, Mutton, Fish, Egg, Paneer, Prawn Biryani variants
-- Prices: ₹140 - ₹295
-- Order counts: 38 - 96 (realistic popularity data)
-
-## 🛠️ Troubleshooting
-
-### Backend Issues
-
-**"Port 3000 already in use"**
+### API Testing - PowerShell
 ```powershell
-# Find and kill process
-Get-NetTCPConnection -LocalPort 3000 | Select-Object OwningProcess
-Stop-Process -Id <PID> -Force
+$response = Invoke-WebRequest -Uri "http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300" -UseBasicParsing
+$response.Content | ConvertFrom-Json | ConvertTo-Json -Depth 10
 ```
 
-**"Cannot connect to database"**
-```bash
-# Check MySQL is running
-# Verify .env credentials
-# Reseed database
-npm run seed
+### API Testing - Direct Browser
+Visit: `http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300`
+
+### Example Searches
+
+| Search Term | Min Price | Max Price | Expected Results |
+|-------------|-----------|-----------|------------------|
+| biryani | 150 | 300 | 10+ results with various biryani types |
+| chicken | 100 | 250 | Multiple chicken dishes |
+| paneer | 100 | 200 | Paneer varieties |
+| mutton | 250 | 350 | Premium mutton options |
+| fish | 280 | 290 | Fish biryani |
+
+## 🏗️ Architecture
+
+### Request Flow
+```
+Client Request → Express Middleware → Route Validation → DB Query → Response
 ```
 
-**"CORS error in browser"**
-- Backend has CORS enabled (check server.js)
-- Frontend is on different port (expected)
-- Restart backend server
+### Database Connection
+- **Connection Pool:** 10 concurrent connections
+- **Automatic Queuing:** Handles overflow requests
+- **Connection Reuse:** Efficient resource management
+- **Error Handling:** Automatic retry and release
 
-### Frontend Issues
-
-**"Failed to fetch from backend"**
-- Verify backend is running on http://localhost:3000
-- Check browser console (F12) for errors
-- Ensure database is seeded
-
-**"No results showing"**
-- Try simpler search: "biryani"
-- Adjust price range (try 100-500)
-- Check backend logs for errors
-
-**"White blank page"**
-- Hard refresh browser (Ctrl+Shift+R or Cmd+Shift+R)
-- Clear browser cache
-- Open browser developer console (F12)
-
-## 📱 Responsive Design
-
-The frontend works perfectly on:
-- ✅ Desktop (1920px+)
-- ✅ Laptop (1366px)
-- ✅ Tablet (768px - 1024px)
-- ✅ Mobile (320px - 767px)
-
-Try opening on your phone!
+### Performance Optimizations
+1. **Connection Pooling:** Reuses database connections
+2. **Parameterized Queries:** SQL injection prevention + caching
+3. **Database Aggregation:** Delegates computation to SQL
+4. **Indexed Queries:** Primary/Foreign keys automatically indexed
+5. **Limited Results:** LIMIT 10 prevents large transfers
 
 ## 🚢 Deployment
 
-### Deploy Backend
+### Backend Deployment
 
-**Option 1: Railway.app (Recommended)**
+**Railway.app (Recommended):**
 ```bash
 npm install -g railway
 railway login
@@ -314,347 +444,182 @@ railway link
 railway up
 ```
 
-**Option 2: Heroku**
+**Heroku:**
 ```bash
+npm install -g heroku
+heroku login
 heroku create your-app-name
 git push heroku main
 ```
 
-**Option 3: AWS/DigitalOcean**
-- Set up server, install Node.js
-- Clone repo and run: npm install && npm start
+**AWS EC2 / DigitalOcean:**
+- Install Node.js and MySQL
+- Clone repository
+- Set `.env` variables
+- `npm install && npm start`
 
-### Deploy Frontend
+### Frontend Deployment
 
-**Option 1: Vercel (Easiest)**
+**Vercel:**
 ```bash
 npm install -g vercel
 vercel
 ```
 
-**Option 2: Netlify**
+**Netlify:**
 - Drag and drop `frontend.html` to netlify.com
 
-**Option 3: GitHub Pages**
-- Push to GitHub, enable Pages
+## 🐛 Troubleshooting
 
-## 📚 Additional Documentation
+### Backend Issues
 
-- `FULLSTACK_SETUP.md` - Complete setup guide with architecture
-- `API_DOCS.md` - Detailed API documentation
-- `CONFIG.md` - Configuration and environment variables
-- `IMPLEMENTATION_NOTES.md` - Design decisions and technical details
-- `TESTING.md` - Testing approaches and examples
+**"Port 3000 already in use"**
+```powershell
+Get-NetTCPConnection -LocalPort 3000 | Select-Object OwningProcess
+Stop-Process -Id <PID> -Force
+```
+
+**"Cannot connect to database"**
+- Verify MySQL is running
+- Check credentials in `.env`
+- Ensure database exists: `node setup-db.js`
+
+**"CORS error in browser"**
+- Backend has CORS enabled in server.js
+- Verify frontend and backend are on different ports
+- Restart backend server
+
+### Frontend Issues
+
+**"Backend not responding"**
+- Verify backend is running: `npm start`
+- Check if running on http://localhost:3000
+- Open browser console (F12) for errors
+
+**"Cannot read property 'forEach'"**
+- Hard refresh browser (Ctrl+Shift+R)
+- Clear browser cache
+
+### Database Issues
+
+**"Connection timed out"**
+- MySQL may not be running
+- Check firewall settings
+- Verify DB_HOST in .env
+
+**"Unknown column error"**
+- Run: `node setup-db.js`
+- Run: `npm run seed`
+
+## 💡 Key Backend Concepts
+
+### Security
+- **Parameterized Queries:** Prevents SQL injection attacks
+- **Input Validation:** All parameters validated before use
+- **CORS:** Restricted to necessary origins
+- **Error Handling:** Never exposes sensitive information
+
+### Performance
+- **Connection Pooling:** Reduces connection overhead
+- **Query Optimization:** JOINs + Aggregation at database level
+- **Result Limiting:** LIMIT 10 prevents large data transfers
+- **Indexing:** Automatic via primary/foreign keys
+
+### Scalability
+- **Stateless Design:** Can run multiple instances
+- **Connection Pool:** Handles concurrent requests
+- **Database Schema:** Normalized for consistency
+- **Error Recovery:** Automatic connection release
+
+### Code Quality
+- **Separation of Concerns:** Routes, DB, Server separate
+- **Error Handling:** Try-catch with proper HTTP status codes
+- **Variable Naming:** Clear, descriptive names
+- **Comments:** Key logic documented
+
+## 📝 Git Repository
+
+The project includes meaningful commits tracking development:
+- Initial setup and configuration
+- Database schema and scripts
+- API endpoint implementation
+- Frontend integration
+- Bug fixes and optimizations
 
 ## 🎓 Interview Preparation
 
-This is a complete, production-ready full-stack application perfect for demonstrating:
+### Technical Talking Points
 
-**Backend Skills:**
-- RESTful API design
-- Database design and optimization
-- Query optimization with JOINs and aggregation
-- Connection pooling and resource management
-- Error handling and validation
-- CORS and security considerations
+**Database Design:**
+- "I used 3 normalized tables with proper foreign key relationships"
+- "Cascading deletes maintain referential integrity"
+- "Why I aggregate orders in a separate table vs individual records"
 
-**Frontend Skills:**
-- Responsive design
-- CSS Grid and Flexbox
-- JavaScript async/await and Fetch API
-- State management
-- User experience and loading states
+**Query Optimization:**
+- "Using INNER JOINs for efficient multi-table queries"
+- "GROUP BY with SUM() aggregates data at database level"
+- "Parameterized queries provide security and caching benefits"
+- "LIMIT 10 prevents unnecessary data transfer"
 
-**Full-Stack Skills:**
-- Frontend-backend integration
-- API communication
-- Data flow and component architecture
-- Testing and debugging
-- Deployment and DevOps basics
+**API Design:**
+- "RESTful principles with proper HTTP methods and status codes"
+- "Input validation prevents invalid requests"
+- "Structured error responses help client debugging"
 
-## 📝 License
+**Performance:**
+- "Connection pooling reduces overhead from establishing connections"
+- "10 concurrent connections handle multiple simultaneous requests"
+- "Case-insensitive LIKE search with proper indexing"
+
+**Security:**
+- "Parameterized queries prevent SQL injection"
+- "CORS configuration controls cross-origin requests"
+- "Input validation on all parameters"
+- "Proper HTTP status codes for error conditions"
+
+### Example Interview Questions
+
+1. **"Walk me through a search request from frontend to database"**
+   - Request to /search/dishes with parameters
+   - Parameter validation (name, price range)
+   - Connection from pool acquired
+   - SQL query executed with JOINs
+   - Results mapped to JSON
+   - Connection released
+   - Response sent to client
+
+2. **"How would you optimize for 1 million menu items?"**
+   - Add indexes on frequently searched columns
+   - Implement caching layer (Redis)
+   - Database read replicas
+   - Pagination instead of fixed LIMIT
+   - Full-text search for better performance
+   - Denormalization for read-heavy queries
+
+3. **"How do you prevent SQL injection?"**
+   - Using parameterized queries (? placeholders)
+   - Never concatenate user input into SQL
+   - mysql2 library handles proper escaping
+   - Input validation as additional layer
+
+4. **"Explain your connection pooling implementation"**
+   - 10 concurrent connections in pool
+   - Reuses connections across requests
+   - Automatic queuing for overflow
+   - Connection release on error
+   - Improves performance vs creating new connection per request
+
+5. **"How would you debug a performance issue?"**
+   - Check slow query log
+   - Monitor connection pool usage
+   - Review EXPLAIN query plans
+   - Check for missing indexes
+   - Profile database vs application code
+
+## 📄 License
 
 MIT - Feel free to use for learning and interviews
 
-## ❓ Support
-
-For issues or questions:
-1. Check troubleshooting section above
-2. Review browser console (F12)
-3. Check backend server logs
-4. Open issue on GitHub
-
 ---
 
-**🍽️ Ready to search for dishes! Start with Step 1 above. Good luck! 🚀**
-
-### 2. Configure Database
-
-Edit the `.env` file with your MySQL credentials:
-
-```env
-PORT=3000
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=restaurant_db
-NODE_ENV=development
-```
-
-### 3. Initialize Database
-
-Run the setup script to create tables:
-
-```bash
-node scripts/setup.js
-```
-
-### 4. Seed Sample Data
-
-Run the seed script to populate the database with sample restaurants and orders:
-
-```bash
-npm run seed
-```
-
-Or manually:
-
-```bash
-node scripts/seed.js
-```
-
-### 5. Start the Server
-
-```bash
-npm start
-```
-
-The server will start on `http://localhost:3000`
-
-For development with auto-reload:
-
-```bash
-npm run dev
-```
-
-## API Endpoints
-
-### Health Check
-
-```
-GET /health
-```
-
-**Response:**
-```json
-{
-  "status": "OK",
-  "message": "Restaurant Dish Search API is running"
-}
-```
-
-### Search Restaurants by Dish
-
-```
-GET /search/dishes?name=<dishName>&minPrice=<minPrice>&maxPrice=<maxPrice>
-```
-
-**Query Parameters:**
-- `name` (required) - Dish name to search for
-- `minPrice` (required) - Minimum price filter
-- `maxPrice` (required) - Maximum price filter
-
-**Example Request:**
-
-```bash
-curl "http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300"
-```
-
-**Example Response:**
-
-```json
-{
-  "restaurants": [
-    {
-      "restaurantId": 5,
-      "restaurantName": "Hyderabadi Spice House",
-      "city": "Hyderabad",
-      "dishName": "Chicken Biryani",
-      "dishPrice": 220,
-      "orderCount": 96
-    },
-    {
-      "restaurantId": 1,
-      "restaurantName": "Kolkata Biryani Palace",
-      "city": "Kolkata",
-      "dishName": "Chicken Biryani",
-      "dishPrice": 195,
-      "orderCount": 89
-    },
-    {
-      "restaurantId": 8,
-      "restaurantName": "Jaipur Royal Cuisine",
-      "city": "Jaipur",
-      "dishName": "Chicken Biryani",
-      "dishPrice": 240,
-      "orderCount": 88
-    }
-  ]
-}
-```
-
-**Error Response (Missing Parameters):**
-
-```json
-{
-  "error": "Dish name (name) is required"
-}
-```
-
-```json
-{
-  "error": "Both minPrice and maxPrice are required"
-}
-```
-
-## Database Schema
-
-### restaurants table
-```sql
-CREATE TABLE restaurants (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  city VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### menu_items table
-```sql
-CREATE TABLE menu_items (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  restaurant_id INT NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
-);
-```
-
-### orders table
-```sql
-CREATE TABLE orders (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  menu_item_id INT NOT NULL,
-  restaurant_id INT NOT NULL,
-  order_count INT DEFAULT 1,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE,
-  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
-);
-```
-
-## Sample Data
-
-The seed script includes:
-- **8 Restaurants** across different Indian cities
-- **30+ Menu Items** featuring various Biryani dishes at different price points
-- **30+ Order Records** showing order counts for popularity ranking
-
-All sample dishes are "Biryani" variants at prices ranging from ₹140 to ₹350, making them easy to test with the example query.
-
-## Testing the API
-
-### Test 1: Search for Biryani (150-300 price range)
-```bash
-curl "http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300"
-```
-
-### Test 2: Search for Chicken (200-250 price range)
-```bash
-curl "http://localhost:3000/search/dishes?name=chicken&minPrice=200&maxPrice=250"
-```
-
-### Test 3: Search for Vegetable (100-200 price range)
-```bash
-curl "http://localhost:3000/search/dishes?name=vegetable&minPrice=100&maxPrice=200"
-```
-
-## Error Handling
-
-The API includes comprehensive error handling:
-
-- **400 Bad Request** - Invalid parameters or missing required fields
-- **404 Not Found** - Invalid endpoint
-- **500 Internal Server Error** - Server-side errors with detailed messages
-
-## Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-PORT=3000                          # Port to run the server on
-DB_HOST=localhost                  # MySQL host
-DB_PORT=3306                       # MySQL port
-DB_USER=root                       # MySQL username
-DB_PASSWORD=your_password          # MySQL password
-DB_NAME=restaurant_db              # Database name
-NODE_ENV=development               # Environment (development/production)
-```
-
-## Deployment
-
-This project can be deployed to free platforms like:
-
-- **Railway.app** - Node.js + MySQL deployment
-- **Render.com** - Node.js hosting
-- **Heroku** - (Paid now, but alternative platforms available)
-- **PlanetScale** - MySQL database hosting
-- **AWS Free Tier** - EC2 + RDS
-
-### Example: Deploying to Railway
-
-1. Push code to GitHub
-2. Connect Railway to GitHub repo
-3. Add MySQL service
-4. Configure environment variables in Railway dashboard
-5. Deploy
-
-## Troubleshooting
-
-### MySQL Connection Error
-- Ensure MySQL server is running
-- Verify credentials in `.env` file
-- Check if database name matches
-
-### Port Already in Use
-- Change `PORT` in `.env` file
-- Or kill process: `lsof -i :3000` then `kill -9 <PID>`
-
-### Seed Data Issues
-- Make sure database is created and tables exist
-- Run `node scripts/setup.js` before seeding
-
-## Future Enhancements
-
-- Add authentication and authorization
-- Implement pagination for results
-- Add more filter options (ratings, cuisine type, etc.)
-- Add caching for frequently searched dishes
-- Implement full-text search for better search quality
-- Add API rate limiting
-- Add comprehensive logging
-- Create admin endpoints for managing restaurants/items
-
-## License
-
-ISC
-
-## Author
-
-Created as a backend service for restaurant dish search functionality.
-
----
-
-**For any issues or questions, please check the API endpoint examples or database schema documentation.**
+**🍽️ Ready to search for dishes! Start with "Quick Start" section above. 🚀**
