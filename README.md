@@ -1,206 +1,40 @@
-# Restaurant Dish Search - Full Stack Application
+# Restaurant Dish Search
 
-A production-ready Node.js + Express + MySQL backend service with a beautiful responsive HTML frontend for searching restaurants by dish name with price filtering.
+Simple Node + Express backend (MySQL) with a React frontend. Search restaurants by dish name and price range — returns top restaurants ordered by popularity.
 
-## 📋 Table of Contents
+Quick commands
+- Backend (from repo root):
+  ```powershell
+  cd .\backend
+  npm install
+  # use local MySQL credentials (example: root/root)
+  $env:DB_HOST='localhost'; $env:DB_USER='root'; $env:DB_PASSWORD='root'; $env:DB_NAME='restaurant_db'
+  npm run setup-db   # create DB & tables
+  npm run seed       # seed sample data
+  npm start          # starts API (default port 3001)
+  ```
 
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [Backend API](#backend-api)
-- [Database Schema](#database-schema)
-- [Installation & Setup](#installation--setup)
-- [Running the Application](#running-the-application)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
+- Frontend (React):
+  ```powershell
+  cd .\frontend
+  npm install
+  npm start
+  # CRA will open a browser; if port 3000 is in use it will pick another port (check console)
+  ```
 
-## ✨ Features
+API
+- Health: `GET /health`
+- Search: `GET /search/dishes?name=<dish>&minPrice=<min>&maxPrice=<max>`
+  - Response shape: `{ "restaurants": [ { restaurantId, restaurantName, city, dishName, dishPrice, orderCount } ] }`
 
-### Backend
-- 🔍 RESTful API for searching restaurants by dish name
-- 💰 Price range filtering (minPrice and maxPrice)
-- ⭐ Results sorted by popularity (order count)
-- 🗄️ MySQL database with optimized queries
-- 🔐 SQL injection prevention using parameterized queries
-- 🔌 Connection pooling (10 concurrent connections)
-- ✅ Input validation and error handling
-- 🌐 CORS support for frontend communication
-- 📊 Database-level aggregation for efficient popularity ranking
+Files removed
+- The standalone static frontend (`frontend/standalone/frontend.html` and its small server) was removed — the React app in `frontend/` is the primary UI now.
 
-### Frontend
-- 🎨 Beautiful gradient UI design
-- 📱 Fully responsive layout (desktop, tablet, mobile)
-- ⚡ Real-time search with validation
-- 🔄 Loading states and error handling
-- 🎯 No external dependencies (pure HTML/CSS/JavaScript)
-- ⚙️ Proper API integration
+Notes
+- Keep secrets out of the repo: use a local `.env` in `backend/` or set env vars in your shell. Do NOT commit `.env`.
+- If you want a Docker Compose setup (MySQL + backend + frontend) I can add one.
 
-## 🛠️ Technology Stack
-
-**Backend:**
-- Node.js v14+ (JavaScript runtime)
-- Express.js 4.18.2 (Web framework)
-- MySQL 5.7+ (Database)
-- mysql2/promise 3.6.5 (Async MySQL driver)
-- cors 2.8.5 (Cross-origin requests)
-- dotenv 16.3.1 (Environment variables)
-- nodemon 3.0.2 (Development tool)
-
-**Frontend:**
-- HTML5 (Semantic markup)
-- CSS3 (Responsive design with Grid and Flexbox)
-- Vanilla JavaScript (No dependencies)
-- Fetch API (HTTP communication)
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js v14 or higher
-- MySQL Server v5.7 or higher
-- npm or yarn
-
-### 1. Install Backend Dependencies
-```bash
-cd "c:\Users\Jayesh Phale\Downloads\Restaurants Dish Search"
-npm install
-```
-
-### 2. Setup Database
-```bash
-# Create database and tables
-node setup-db.js
-
-# Seed with sample data
-npm run seed
-```
-
-### 3. Start Backend Server
-```bash
-npm start
-```
-Expected output: `🚀 Restaurant Dish Search API running on http://localhost:3000`
-
-### 4. Start Frontend Server (Optional)
-```bash
-node frontend-server.js
-```
-Expected output: `🌐 Frontend available at http://localhost:8080`
-
-### 5. Access the Application
-- **Frontend UI**: http://localhost:8080
-- **Or open directly**: `frontend.html` in your browser
-- **API Health Check**: http://localhost:3000/health
-- **Test Search**: http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300
-
-## 📁 Project Structure
-
-```
-Restaurants Dish Search/
-├── Backend Core
-│   ├── server.js              # Express application setup
-│   ├── db.js                  # MySQL connection pool
-│   ├── dbSetup.js             # Database schema initialization
-│   ├── package.json           # Dependencies configuration
-│   └── .env                   # Environment variables
-│
-├── Routes & Logic
-│   └── routes/
-│       └── search.js          # Search API endpoint
-│
-├── Database
-│   ├── scripts/
-│   │   ├── setup.js           # Database setup entry point
-│   │   └── seed.js            # Sample data seeding
-│   └── setup-db.js            # Standalone database setup
-│
-├── Frontend
-│   ├── frontend.html          # All-in-one HTML UI
-│   └── frontend-server.js     # HTTP server for frontend
-│
-└── README.md                  # This file
-```
-
-## 🔌 Backend API
-
-### Endpoints
-
-#### 1. Search Dishes
-Search for restaurants serving a specific dish within a price range.
-
-**Request:**
-```
-GET /search/dishes?name=<dishName>&minPrice=<minPrice>&maxPrice=<maxPrice>
-```
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| name | string | ✅ | Dish name to search (supports partial matching) |
-| minPrice | number | ✅ | Minimum price in ₹ (non-negative) |
-| maxPrice | number | ✅ | Maximum price in ₹ (non-negative, >= minPrice) |
-
-**Example Request:**
-```
-http://localhost:3000/search/dishes?name=biryani&minPrice=150&maxPrice=300
-```
-
-**Success Response (200 OK):**
-```json
-{
-  "restaurants": [
-    {
-      "restaurantId": 1,
-      "restaurantName": "Hyderabadi Spice House",
-      "city": "Hyderabad",
-      "dishName": "Chicken Biryani",
-      "dishPrice": 220,
-      "orderCount": 96
-    },
-    {
-      "restaurantId": 4,
-      "restaurantName": "Kolkata Biryani Palace",
-      "city": "Kolkata",
-      "dishName": "Chicken Biryani",
-      "dishPrice": 195,
-      "orderCount": 89
-    }
-  ]
-}
-```
-
-**Error Responses:**
-
-Missing required parameters (400 Bad Request):
-```json
-{
-  "error": "Dish name (name) is required"
-}
-```
-
-Invalid price range (400 Bad Request):
-```json
-{
-  "error": "minPrice must be less than or equal to maxPrice"
-}
-```
-
-Server error (500 Internal Server Error):
-```json
-{
-  "error": "Internal server error",
-  "message": "Connection error details..."
-}
-```
-
-#### 2. Health Check
-Check if the API is running.
-
-**Request:**
-```
-GET /health
-```
+If anything is unclear or you want a Docker setup, tell me and I will add it.
 
 **Response (200 OK):**
 ```json
