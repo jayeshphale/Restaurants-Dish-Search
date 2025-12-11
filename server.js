@@ -26,10 +26,7 @@ app.use('/search', searchRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'Restaurant Dish Search API is running'
-  });
+  res.json({ status: 'OK' });
 });
 
 // 404 handler
