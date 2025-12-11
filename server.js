@@ -4,7 +4,9 @@ const searchRoutes = require('./routes/search');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+// Railway-compatible PORT
+const PORT = Number(process.env.PORT) || 8080;
 
 // Middleware
 app.use(cors());
@@ -39,10 +41,10 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Restaurant Dish Search API running on http://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`Search endpoint: http://localhost:${PORT}/search/dishes?name=biryani&minPrice=150&maxPrice=300`);
+app.listen(PORT, () => {
+  console.log(`🚀 Restaurant Dish Search API running on PORT: ${PORT}`);
+  console.log(`Health check: /health`);
+  console.log(`Search endpoint: /search/dishes?name=biryani&minPrice=150&maxPrice=300`);
 });
 
 module.exports = app;
