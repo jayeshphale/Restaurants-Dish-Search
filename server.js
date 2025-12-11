@@ -6,11 +6,20 @@ require('dotenv').config();
 const app = express();
 
 // Railway-compatible PORT
-const PORT = Number(process.env.PORT) || 8080;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Restaurant Dish Search API is running',
+    healthCheck: '/health',
+    searchSample: '/search/dishes?name=biryani&minPrice=150&maxPrice=300'
+  });
+});
 
 // Routes
 app.use('/search', searchRoutes);
