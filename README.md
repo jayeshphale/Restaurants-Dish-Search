@@ -434,7 +434,243 @@ Client Request → Express Middleware → Route Validation → DB Query → Resp
 
 ## 🚢 Deployment
 
-### Backend Deployment
+### Backend Deployment on Render (Complete Guide)
+
+#### Step 1: Prepare Your Code for Render
+
+1. **Ensure `package.json` has correct start script:**
+```json
+{
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node scripts/seed.js"
+  }
+}
+```
+
+2. **Update `.env` file structure** - Render provides environment variables in the dashboard:
+```
+DATABASE_HOST=your_render_mysql_host
+DATABASE_USER=your_mysql_user
+DATABASE_PASSWORD=your_mysql_password
+DATABASE_NAME=restaurants_db
+PORT=10000
+```
+
+3. **Push to GitHub** - Render connects via GitHub:
+```bash
+git add .
+git commit -m "Prepare for Render deployment"
+git push origin main
+```
+
+#### Step 2: Create Render MySQL Database
+
+1. Go to [render.com](https://render.com)
+2. Click **"New +"** → **"MySQL"**
+3. **Database Configuration:**
+   - **Name**: `restaurants_db`
+   - **Database**: `restaurants_db`
+   - **Username**: `render_user` (or your choice)
+   - **Region**: Select closest to you
+   - **Pricing**: Free tier available
+
+4. **Save these credentials:**
+   - **External Database URL** (provided after creation)
+   - **Host**: `<host>.mysql.render.com`
+   - **Port**: `3306`
+   - **User**: Your username
+   - **Password**: Your password
+
+#### Step 3: Create Render Web Service for Backend
+
+1. Click **"New +"** → **"Web Service"**
+2. **Connect GitHub Repository:**
+   - Select "Deploy an existing repository"
+   - Search and select your restaurant-search repo
+   - Authorize GitHub access if needed
+
+3. **Configuration Settings:**
+   - **Name**: `restaurant-api` (or your choice)
+   - **Environment**: `Node`
+   - **Region**: Same as database
+   - **Branch**: `main`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+
+4. **Environment Variables** (click "Add Environment Variable"):
+```
+DATABASE_HOST=<mysql.render.com host from Step 2>
+DATABASE_USER=<your_username>
+DATABASE_PASSWORD=<your_password>
+DATABASE_NAME=restaurants_db
+PORT=10000
+NODE_ENV=production
+```
+
+5. **Deploy Settings:**
+   - **Pricing Plan**: Free or Starter
+   - Click **"Create Web Service"**
+
+6. **Wait for Deployment:**
+   - Render builds and deploys automatically
+   - Check deployment logs in Dashboard
+   - Expected URL: `https://restaurant-api-xxxxx.onrender.com`
+
+#### Step 4: Initialize Database on Render
+
+1. **Connect to Render MySQL** using a MySQL client:
+```bash
+# Using MySQL command line
+mysql -h <host>.mysql.render.com -u <user> -p
+# Enter your password when prompted
+```
+
+2. **Create Database & Tables:**
+```sql
+USE restaurants_db;
+
+-- Create restaurants table
+CREATE TABLE restaurants (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  city VARCHAR(100),
+  UNIQUE KEY unique_name_city (name, city)
+);
+
+-- Create menu items table
+CREATE TABLE menu_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  restaurant_id INT NOT NULL,
+  dish_name VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+);
+
+-- Create orders table
+CREATE TABLE orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  menu_item_id INT NOT NULL,
+  order_count INT DEFAULT 1,
+  FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE
+);
+
+-- Create indexes for performance
+CREATE INDEX idx_menu_items_restaurant ON menu_items(restaurant_id);
+CREATE INDEX idx_menu_items_dish ON menu_items(dish_name);
+CREATE INDEX idx_orders_menu_item ON orders(menu_item_id);
+```
+
+3. **Seed Sample Data (Optional):**
+```sql
+-- Insert sample restaurants
+INSERT INTO restaurants (name, city) VALUES 
+('Taj Palace', 'Mumbai'),
+('Spice Route', 'Delhi'),
+('Southern Masala', 'Bangalore'),
+('Coastal Kitchen', 'Chennai'),
+('Golden Fork', 'Kolkata'),
+('Royal Tandoor', 'Pune'),
+('Curry House', 'Hyderabad'),
+('Biryani Bliss', 'Lucknow');
+
+-- Insert menu items
+INSERT INTO menu_items (restaurant_id, dish_name, price) VALUES
+(1, 'Hyderabadi Biryani', 280),
+(1, 'Butter Chicken', 350),
+(2, 'Mughlai Biryani', 250),
+(2, 'Paneer Tikka', 280),
+-- ... add more as needed
+```
+
+#### Step 5: Verify Deployment
+
+1. **Test API Health:**
+```
+https://restaurant-api-xxxxx.onrender.com/health
+```
+Should return: `{ status: 'OK' }`
+
+2. **Test Search Endpoint:**
+```
+https://restaurant-api-xxxxx.onrender.com/search/dishes?name=biryani&minPrice=150&maxPrice=300
+```
+
+3. **Check Logs:**
+   - Go to Web Service Dashboard
+   - Click "Logs" to view real-time server output
+
+#### Step 6: Deploy Frontend
+
+**Option A: Deploy as Static Site (Recommended)**
+1. Go to Render → **"New +"** → **"Static Site"**
+2. Connect your GitHub repository
+3. **Configuration:**
+   - **Build Command**: (leave empty for static HTML)
+   - **Publish Directory**: `.` (root folder where frontend.html is)
+4. Add environment variable:
+```
+BACKEND_URL=https://restaurant-api-xxxxx.onrender.com
+```
+5. Update `frontend.html` to use environment variable:
+   - Find: `const API_BASE_URL = 'http://localhost:3000';`
+   - Replace with: `const API_BASE_URL = 'https://restaurant-api-xxxxx.onrender.com';`
+
+**Option B: Deploy Node Frontend Server**
+1. Create new Web Service pointing to your repo
+2. **Build Command**: `npm install`
+3. **Start Command**: `node frontend-server.js`
+4. Add environment variable with backend URL
+
+**Option C: Use Vercel (Easiest for Frontend)**
+1. Push frontend.html to GitHub
+2. Go to [vercel.com](https://vercel.com)
+3. Import GitHub repository
+4. Deploy (takes 1-2 minutes)
+5. Update `frontend.html` API_BASE_URL to your Render backend URL
+
+#### Step 7: Connect Frontend to Backend
+
+**Update frontend.html:**
+```javascript
+// Find this line (around line 1):
+const API_BASE_URL = 'http://localhost:3000';
+
+// Change to:
+const API_BASE_URL = 'https://restaurant-api-xxxxx.onrender.com';
+```
+
+Save and redeploy frontend.
+
+#### Troubleshooting Render Deployment
+
+**Issue: "502 Bad Gateway"**
+- Check backend logs: Dashboard → Logs
+- Verify database connection in Error logs
+- Ensure all environment variables are set correctly
+- Restart service: Dashboard → "Manual Restart"
+
+**Issue: "Cannot connect to database"**
+- Verify MySQL host/user/password in environment variables
+- Check if database was created and tables initialized
+- Test MySQL connection string using MySQL Workbench
+
+**Issue: "Database error after restart"**
+- Render spins down free tier after 15 minutes of inactivity
+- First request will take 30+ seconds (wake-up time)
+- Data persists in MySQL, but Node process may reset
+
+**Issue: "CORS error from frontend"**
+- Ensure backend has CORS enabled in `server.js`
+- Verify frontend URL matches backend CORS settings
+- Clear browser cache and hard refresh (Ctrl+Shift+R)
+
+**Issue: "Frontend shows errors but backend works"**
+- Check browser console (F12 → Console)
+- Verify API_BASE_URL in frontend.html is correct
+- Check that backend returns `{ restaurants: [...] }` format
+
+### Alternative Deployment Platforms
 
 **Railway.app (Recommended):**
 ```bash
